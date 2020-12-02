@@ -4,7 +4,7 @@ use std::fs;
 use std::process;
 
 fn get_n_numbers_summing_to_target(
-    mut num_counts: &mut HashMap<u32, u8>,
+    num_counts: &mut HashMap<u32, u8>,
     n: u8,
     target: u32,
 ) -> Option<Vec<u32>> {
@@ -14,7 +14,7 @@ fn get_n_numbers_summing_to_target(
                 continue;
             }
             *num_counts.get_mut(&x).unwrap() -= 1;
-            match get_n_numbers_summing_to_target(&mut num_counts, n - 1, target - x) {
+            match get_n_numbers_summing_to_target(num_counts, n - 1, target - x) {
                 Some(mut summands) => {
                     summands.push(x);
                     return Some(summands);
