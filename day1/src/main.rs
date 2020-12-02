@@ -3,7 +3,7 @@ use std::env::args;
 use std::fs;
 use std::process;
 
-fn get_product_of_n_numbers_summing_to_target(
+fn get_n_numbers_summing_to_target(
     mut num_counts: &mut HashMap<u32, u8>,
     n: u8,
     target: u32,
@@ -14,7 +14,7 @@ fn get_product_of_n_numbers_summing_to_target(
                 continue;
             }
             *num_counts.get_mut(&x).unwrap() -= 1;
-            match get_product_of_n_numbers_summing_to_target(&mut num_counts, n - 1, target - x) {
+            match get_n_numbers_summing_to_target(&mut num_counts, n - 1, target - x) {
                 Some(mut summands) => {
                     summands.push(x);
                     return Some(summands);
@@ -55,7 +55,7 @@ fn main() {
         *counter += 1;
     }
 
-    match get_product_of_n_numbers_summing_to_target(&mut num_counts, n, target) {
+    match get_n_numbers_summing_to_target(&mut num_counts, n, target) {
         Some(summands) => println!(
             "Summands: {:?}, Product: {}",
             summands,
