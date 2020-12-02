@@ -1,52 +1,66 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::env::args;
 use std::fs;
+use std::process;
 
 fn get_product_of_n_numbers_summing_to_target(
-    nums: &HashMap<u32, usize>,
+    mut num_counts: &mut HashMap<u32, u8>,
     n: u8,
     target: u32,
-    exclude_indices: &mut HashSet<usize>,
-) -> Option<u32> {
+) -> Option<Vec<u32>> {
     if n > 0 {
-        for (x, idx) in nums.clone() {
-            if x > target || exclude_indices.contains(&idx) {
+        for (x, count) in num_counts.clone() {
+            if x > target || count <= 0 {
                 continue;
             }
-            // Subtract x from target and check recurse
-            exclude_indices.insert(idx);
-            match get_product_of_n_numbers_summing_to_target(
-                &nums,
-                n - 1,
-                target - x,
-                exclude_indices,
-            ) {
-                Some(product) => return Some(x * product),
+            *num_counts.get_mut(&x).unwrap() -= 1;
+            match get_product_of_n_numbers_summing_to_target(&mut num_counts, n - 1, target - x) {
+                Some(mut summands) => {
+                    summands.push(x);
+                    return Some(summands);
+                }
                 _ => {}
             }
-            exclude_indices.remove(&idx);
+            *num_counts.get_mut(&x).unwrap() += 1;
         }
     } else if target == 0 {
-        return Some(1);
+        return Some(Vec::new());
     }
 
     return None;
 }
 
 fn main() {
+    if args().count() != 3 {
+        eprintln!("\nUsage: cargo run [target] [n]\n");
+        process::exit(1);
+    }
+
+    let target: u32 = args()
+        .nth(1)
+        .unwrap()
+        .parse()
+        .expect("target must be a u32");
+    let n: u8 = args().nth(2).unwrap().parse().expect("n must be a u8");
+
     let nums = fs::read_to_string("input.txt")
         .unwrap()
         .lines()
-        .enumerate()
-        .map(|t| (t.1.parse().unwrap(), t.0))
-        .collect::<HashMap<u32, usize>>();
+        .map(|l| l.parse().unwrap())
+        .collect::<Vec<u32>>();
 
-    match get_product_of_n_numbers_summing_to_target(&nums, 2, 2020, &mut HashSet::new()) {
-        Some(product) => println!("{}", product),
-        _ => {}
+    let mut num_counts: HashMap<u32, u8> = HashMap::new();
+    for num in nums {
+        let counter = num_counts.entry(num).or_insert(0);
+        *counter += 1;
     }
 
-    match get_product_of_n_numbers_summing_to_target(&nums, 3, 2020, &mut HashSet::new()) {
-        Some(product) => println!("{}", product),
-        _ => {}
+    match get_product_of_n_numbers_summing_to_target(&mut num_counts, n, target) {
+        Some(summands) => println!(
+            "Summands: {:?}, Product: {}",
+            summands,
+            summands.iter().fold(1, |sum, &num| sum * num)
+        ),
+        _ => println!("Couldn't find {} distinct numbers summing to {}", n, target),
     }
 }
