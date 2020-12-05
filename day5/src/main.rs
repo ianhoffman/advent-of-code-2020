@@ -20,20 +20,18 @@ fn get_seat_num(line: &str) -> u32 {
 }
 
 fn get_seat_id(line: &str) -> u32 {
-    return get_row_num(&line[..7]) * 8 + get_seat_num(&line[7..]);
+    get_row_num(&line[..7]) * 8 + get_seat_num(&line[7..])
 }
 
-fn get_my_seat_id(seat_ids: Vec<u32>) -> u32 {
+fn get_my_seat_id(seat_ids: Vec<u32>) -> Option<u32> {
     let mut last_seat_id = 0;
-    let mut my_seat_id = 0;
     for seat_id in seat_ids.iter() {
         if seat_id - 2 == last_seat_id {
-            my_seat_id = seat_id - 1;
-            break;
+            return Some(seat_id - 1);
         }
         last_seat_id = *seat_id;
     }
-    my_seat_id
+    return None;
 }
 
 fn main() {
@@ -47,6 +45,6 @@ fn main() {
     println!("Max seat id: {}", max_seat_id);
 
     seat_ids.sort();
-    let my_seat_id = get_my_seat_id(seat_ids);
+    let my_seat_id = get_my_seat_id(seat_ids).unwrap();
     println!("My seat id is: {}", my_seat_id);
 }
