@@ -1,26 +1,37 @@
 use std::fs;
 
-fn binary_partition(line: &str, target: char, mut min_val: u32, mut max_val: u32) -> u32 {
-    for c in line.chars() {
-        if c == target {
-            max_val = (min_val + max_val) / 2;
-        } else {
-            min_val = (min_val + max_val) / 2 + 1;
-        }
-    }
-    min_val
-}
-
-fn get_row_num(line: &str) -> u32 {
-    binary_partition(line, 'F', 0, 127)
-}
-
-fn get_seat_num(line: &str) -> u32 {
-    binary_partition(line, 'L', 0, 7)
-}
-
 fn get_seat_id(line: &str) -> u32 {
-    get_row_num(&line[..7]) * 8 + get_seat_num(&line[7..])
+    // "line" is a string of form [F|B]{8}[L|R]{3}.
+    //
+    // Therefore, the last three characters encode
+    // a 3-bit integer (0-7) and the first 8 characters
+    // encode an 8-bit integer (0-127).
+    //
+    // The problem statement asks us to multiple the
+    // second integer by 8 and add it to the first integer.
+    //
+    // Multiplying an integer by 8 is the equivalent of
+    // shifting it left 3 times. Therefore, our formula
+    // becomes:
+    //
+    // bin([F|B]{8}) << 3 + bin([L|R]{3})
+    //
+    // This is equivalent to:
+    //
+    // bin([F|B]{8}) << 3 | bin([L|R]{3})
+    //
+    // Which is itself equivalent to:
+    //
+    // bin([F|B]{8}[L|R]{3})
+    //
+    isize::from_str_radix(
+        &line
+            .replace('F', "0")
+            .replace('B', "1")
+            .replace('L', "0")
+            .replace('R', "1"),
+        2,
+    ).unwrap() as u32
 }
 
 fn get_my_seat_id(seat_ids: Vec<u32>) -> u32 {
