@@ -1,6 +1,7 @@
 debug/
 target/
 **/*.rs.bk
+.vscode
 
 
 #Added by cargo
