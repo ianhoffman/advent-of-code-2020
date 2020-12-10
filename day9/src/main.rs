@@ -63,6 +63,26 @@ fn find_invalid_num(set: &mut OrderedSet<u64>, nums: &Vec<u64>) -> Option<u64> {
     None
 }
 
+fn find_sum(nums: &Vec<u64>, target: u64) -> Option<u64> {
+    let mut start = 0;
+    let mut end = 0;
+    let mut sum = nums[end];
+    while start <= end {
+        if sum < target {
+            end += 1;
+            sum += nums[end];
+        } else if sum > target {
+            sum -= nums[start];
+            start += 1;
+        } else {
+            let min = &nums[start..end].iter().min().unwrap();
+            let max = &nums[start..end].iter().max().unwrap();
+            return Some(*min + *max);
+        }
+    }
+    None
+}
+
 fn find_sum_brute_force(nums: &Vec<u64>, target: u64) -> Option<u64> {
     let mut i = 0;
     while i < nums.len() {
@@ -100,6 +120,9 @@ fn main() {
         println!("Invalid num: {}", invalid_num);
 
         if let Some(sum) = find_sum_brute_force(&nums, invalid_num) {
+            println!("Target sum: {}", sum);
+        }
+        if let Some(sum) = find_sum(&nums, invalid_num) {
             println!("Target sum: {}", sum);
         }
     } else {
