@@ -56,7 +56,7 @@ impl Grid {
         self.grid.iter().fold(0, |a1, row| {
             a1 + row
                 .iter()
-                .fold(0, |a2, pos| if *pos == '#' { a2 + 1 } else { a2 })
+                .fold(0, |a2, pos| a2 + (*pos == '#') as u32)
         })
     }
 
@@ -92,12 +92,8 @@ impl Grid {
     fn apply_rule(&self, rule: fn(&Grid, usize, usize) -> u8, cutoff: u8) -> (Grid, bool) {
         let mut next_grid = self.clone();
         let mut has_changes = false;
-        let mut i = 0;
-        let n = self.grid.len();
-        while i < n {
-            let mut j = 0;
-            let m = self.grid[i].len();
-            while j < m {
+        for i in 0..self.grid.len() {
+            for j in 0..self.grid[i].len() {
                 let pos = self.grid[i][j];
                 if pos == 'L' {
                     if rule(&self, i, j) == 0 {
@@ -110,9 +106,7 @@ impl Grid {
                         has_changes = true;
                     }
                 }
-                j += 1;
             }
-            i += 1;
         }
         (next_grid, has_changes)
     }
