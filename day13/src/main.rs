@@ -114,10 +114,10 @@ fn part2() {
     //
     // In short, we need this sum because, by dividing it by each number
     // in the part below, we can ensure that each "part" of our result only contains
-    // terms from the number in question. That is to say, if we want to calculate
-    // a number x such that x % a = 2, x % b = 3, and x % c = 4 we can construct a
-    // sum s = bcx + acy + abz, such that x % a = bcx % a, x % b = acy % b, and
-    // x % c = abz % c. Thus we need only consider each term in isolation,
+    // terms divisible by the number in question. That is to say, if we want to calculate
+    // a number s such that s % a = 2, s % b = 3, and s % c = 4 we can construct a
+    // sum s = bcx + acy + abz, so then s % a = bcx % a, s % b = acy % b, and
+    // s % c = abz % c. Thus we need only consider each term in isolation,
     // which simplifies our work.
     //
     let product: i64 = num_to_remainder.iter().map(|(num, _)| *num).product();
@@ -125,12 +125,12 @@ fn part2() {
         // This is the number `bc`, for example, in the sum `s` described above.
         let prod_without_num = product / num;
         //
-        // This is the unique number `x` such that ax % m ~= 1.
+        // This is a number `x` such that ax % m ~= 1.
         // Here's (to my understanding) why we use `product_without_num` as the modulus:
         // the equation is now of the form s = bcx + acy + abz.
-        // When we take s % a, we get s = bcx.
+        // When we take s % a, we get s = bcx (modulo a) (all other terms go to 0).
         // Thus we seek x such that bcx % a = rem.
-        // To simplify, we will set rem = 1.
+        // To simplify, we will assume rem = 1.
         // Thus we seek bcx % a = 1, so bcx ~= 1 (mod a).
         // So x is the modular inverse of bc.
         //
