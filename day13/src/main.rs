@@ -1,7 +1,6 @@
 use std::fs;
 
-fn part1() {
-    let content = fs::read_to_string("input/input.txt").unwrap();
+fn part1(content: &String) {
     let mut iter = content.splitn(2, '\n');
     let start_time = iter.next().unwrap().parse::<u32>().unwrap();
     let (bus_id, min_wait_time) = iter
@@ -11,22 +10,9 @@ fn part1() {
         .split(',')
         .filter(|bus_id| *bus_id != "x")
         .map(|bus_id| bus_id.parse::<u32>().unwrap())
-        .map(|bus_id| {
-            (
-                bus_id,
-                (((((start_time as f32) / (bus_id as f32)).floor() as u32) + 1) * bus_id)
-                    - start_time,
-            )
-        })
-        .fold(
-            (0, u32::MAX),
-            |(min_bus_id, min_wait_time), (curr_bus_id, curr_wait_time)| {
-                if curr_wait_time < min_wait_time {
-                    return (curr_bus_id, curr_wait_time);
-                }
-                (min_bus_id, min_wait_time)
-            },
-        );
+        .map(|bus_id| (bus_id, (start_time / bus_id + 1) * bus_id - start_time))
+        .min_by(|(_, min_wait_time), (_, curr_wait_time)| min_wait_time.cmp(curr_wait_time))
+        .unwrap();
     println!("{}", min_wait_time * bus_id);
 }
 
@@ -69,19 +55,14 @@ fn mod_inv(a: i64, b: i64) -> i64 {
     x_last
 }
 
-fn part2() {
-    let content = fs::read_to_string("input/input.txt").unwrap();
-    let content: Vec<&str> = content
+fn part2(content: &String) {
+    let num_to_remainder: Vec<(i64, i64)> = content
         .splitn(2, '\n')
         .skip(1)
         .next()
         .unwrap()
         .trim_end()
         .split(',')
-        .collect();
-
-    let num_to_remainder: Vec<(i64, i64)> = content
-        .iter()
         //
         // Enumerate the list since these indices
         // will be used to determine the target "distance"
@@ -92,7 +73,7 @@ fn part2() {
         // Filter out buses without a valid ID.
         // We don't care about them.
         //
-        .filter(|(_, bus_id)| **bus_id != "x")
+        .filter(|(_, bus_id)| *bus_id != "x")
         //
         // `idx` is the offset from the timestamp.
         // The first bus leaves at the timestamp, so the offset is 0.
@@ -153,6 +134,7 @@ fn part2() {
 }
 
 fn main() {
-    part1();
-    part2();
+    let content = fs::read_to_string("input/input.txt").unwrap();
+    part1(&content);
+    part2(&content);
 }
