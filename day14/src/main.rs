@@ -35,16 +35,13 @@ fn parse_mem_line(line: &str) -> Option<(u64, u64)> {
 
 fn part1(content: &str) {
     let mut mem: HashMap<u64, u64> = HashMap::new();
-    let mut and_mask = 0;
-    let mut or_mask = 0;
+    let (mut and_mask, mut or_mask) = (0, 0);
     for line in content.lines() {
         if let Some(mask) = parse_mask_line(line) {
             and_mask = u64::from_str_radix(mask.replace('X', "1").as_str(), 2).unwrap();
             or_mask = u64::from_str_radix(mask.replace('X', "0").as_str(), 2).unwrap();
         } else if let Some((address, value)) = parse_mem_line(line) {
             mem.insert(address, and_mask & (or_mask | value));
-        } else {
-            panic!("Unmatched input {}!", line);
         }
     }
     let sum: u64 = mem.values().sum();
@@ -52,23 +49,25 @@ fn part1(content: &str) {
 }
 
 fn gen_v2_addresses(address: u64, mask: &str, i: usize) -> Vec<u64> {
-    if i >= mask.len() {
-        return vec![0];
+    match mask
+        .chars()
+        .nth(mask.len().checked_sub(i + 1).unwrap_or_else(|| mask.len()))
+    {
+        None => vec![0],
+        Some(curr) => gen_v2_addresses(address, mask, i + 1)
+            .iter()
+            .map(|&n| {
+                if curr == 'X' {
+                    vec![n, n | 1 << i]
+                } else if curr == '1' {
+                    vec![n | 1 << i]
+                } else {
+                    vec![n | address & 1 << i]
+                }
+            })
+            .flatten()
+            .collect(),
     }
-    let curr = mask.chars().nth(mask.len() - i - 1).unwrap();
-    gen_v2_addresses(address, mask, i + 1)
-        .iter()
-        .map(|&n| {
-            if curr == 'X' {
-                vec![n, n | (1 << i)]
-            } else if curr == '1' {
-                vec![n | 1 << i]
-            } else {
-                vec![n | (address & (1 << i))]
-            }
-        })
-        .flatten()
-        .collect()
 }
 
 fn part2(content: &str) {
